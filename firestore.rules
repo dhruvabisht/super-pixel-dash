@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// Super Pixel Dash — Firestore security rules.
+// Anyone can read the leaderboard; only signed-in players can add their
+// own score, and scores can never be edited or deleted from the client.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /scores/{scoreId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly(['uid', 'name', 'photoURL', 'level', 'cleared', 'coins', 'time', 'score', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 24
+        && request.resource.data.photoURL is string && request.resource.data.photoURL.size() <= 500
+        && request.resource.data.level is int && request.resource.data.level >= 1 && request.resource.data.level <= 5
+        && request.resource.data.cleared is bool
+        && request.resource.data.coins is int && request.resource.data.coins >= 0 && request.resource.data.coins <= 300
+        && request.resource.data.time is int && request.resource.data.time >= 0 && request.resource.data.time <= 359999
+        && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 200000
+        && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+  }
+}
