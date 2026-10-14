@@ -8,7 +8,7 @@
   'use strict';
 
   const L = window.Levels;
-  const Sound = window.Sound || { play() {}, music() {}, stopMusic() {}, unlock() {}, isMuted: () => true, toggleMute: () => true, duckMusic() {} };
+  const Sound = window.Sound || { play() {}, music() {}, stopMusic() {}, unlock() {}, isMuted: () => true, toggleMute: () => true, duckMusic() {}, suspend() {}, resume() {} };
   const Board = window.Leaderboard;
   if (!L) { document.body.innerHTML = '<p style="color:#fff;padding:20px">Failed to load level data.</p>'; return; }
 
@@ -22,9 +22,9 @@
     gravity: 0.38, maxFall: 7,
     accel: 0.16, airAccel: 0.12, friction: 0.2, turnBoost: 2.2,
     walk: 2.4, run: 3.3,
-    jumpV: -6.6, jumpCut: -2.6,
+    jumpV: -7.4, jumpCut: -2.6, // ≈4.6 tiles: clears 4-tile-high brick rows
     coyote: 6, buffer: 7,
-    stomp: -5, stompHeld: -7.2,
+    stomp: -5, stompHeld: -7.8,
   };
   const START_LIVES = 3;
   const MAX_HP = 3;
@@ -1358,7 +1358,7 @@
     ui.hud(false);
     ui.hideBossBar();
     ui.show('screen-title');
-    if (audioStarted) Sound.music('title');
+    if (audioStarted) Sound.music('title'); else Sound.stopMusic();
   }
 
   function updateCamera(snap) {
@@ -1950,8 +1950,14 @@
   window.addEventListener('pointerdown', firstGesture);
   window.addEventListener('keydown', firstGesture);
 
+  // Silence everything while the tab is in the background.
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && G.state === 'play') togglePause();
+    if (document.hidden) {
+      if (G.state === 'play') togglePause();
+      Sound.suspend();
+    } else {
+      Sound.resume();
+    }
   });
   window.addEventListener('unhandledrejection', (ev) => console.warn('[game] unhandled rejection:', ev.reason));
 

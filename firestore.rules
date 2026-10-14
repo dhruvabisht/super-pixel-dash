@@ -1,11 +1,21 @@
 rules_version = '2';
 
-// Super Pixel Dash — Firestore security rules.
+// Super Pixel Dash — Firestore security rules for the leaderboard.
+//
+// !! SHARED PROJECT WARNING !!
+// Deploying a rules file REPLACES all of a project's rules. If your Firebase
+// project is shared with another app (this game uses the "MP3 Player IOS"
+// project), do NOT deploy this file on its own: copy the
+// `match /pixeldash_scores/{scoreId}` block below into that project's existing
+// rules file and deploy that instead.
+//
 // Anyone can read the leaderboard; only signed-in players can add their
 // own score, and scores can never be edited or deleted from the client.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /scores/{scoreId} {
+
+    // ---- Super Pixel Dash leaderboard (begin) ----
+    match /pixeldash_scores/{scoreId} {
       allow read: if true;
 
       allow create: if request.auth != null
@@ -22,5 +32,6 @@ service cloud.firestore {
 
       allow update, delete: if false;
     }
+    // ---- Super Pixel Dash leaderboard (end) ----
   }
 }

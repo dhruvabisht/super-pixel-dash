@@ -311,7 +311,7 @@
 /* =========================================================
    LEVEL LAYOUTS — 14 rows tall, built with the builder DSL.
    Tile coords: x = column, y = row (0 = top, ground top = 12).
-   Physics budget: max jump ≈ 3 tiles up, ≈ 5 tiles across.
+   Physics budget: max jump ≈ 4.5 tiles up, ≈ 6 tiles across.
    ========================================================= */
 (function () {
   'use strict';

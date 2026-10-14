@@ -295,6 +295,9 @@
     isMuted: () => muted,
     setMuted,
     toggleMute() { setMuted(!muted); return muted; },
+    // Pause/resume the whole audio graph (used when the tab is hidden).
+    suspend() { if (ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); },
+    resume() { if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {}); },
     duckMusic(on) {
       if (musicBus && ctx) musicBus.gain.setTargetAtTime(on ? 0.06 : 0.22, ctx.currentTime, 0.05);
     },

@@ -79,7 +79,7 @@ js/game.js                    Game loop (fixed 60 Hz step), input, physics, coll
 js/levels.js                  Tile set, 5 world themes, level layouts (builder DSL), enemy pixel art, enemy AI and boss AI
 js/audio.js                   Web Audio synthesizer: sound effects, jingles, step-sequencer chiptunes
 js/firebase.js                Google Sign-In, Firestore high scores, local fallback and retry queue
-firestore.rules               Security rules for the `scores` collection
+firestore.rules               Security rules for the `pixeldash_scores` collection
 .github/workflows/deploy.yml  GitHub Pages deployment on every push to `main`
 ```
 
@@ -88,6 +88,10 @@ firestore.rules               Security rules for the `scores` collection
 ## Firebase setup (global leaderboard)
 
 The game works without Firebase: scores are saved to `localStorage` and the leaderboard shows "LOCAL (THIS DEVICE)". Follow these steps to turn on Google Sign-In and the global board.
+
+> **Current setup:** the live game uses the existing **MP3 Player IOS** Firebase project (`mp3-player-ios`) through its own web app, *Super Pixel Dash*. The leaderboard lives in its own collection, `pixeldash_scores`, separate from the MP3 app's data. Google sign-in is shared with that project, so game players appear in its Authentication user list.
+>
+> You can also use a project that already belongs to another app. Register a new web app in it, then follow steps 2–4. In step 4, **merge** the rules instead of replacing them.
 
 ### 1. Create a project and a web app
 
@@ -128,6 +132,8 @@ const FIREBASE_CONFIG = {
 1. Go to **Build → Firestore Database → Create database**, pick a location and start in **production mode**.
 2. Open the **Rules** tab, paste the contents of [`firestore.rules`](firestore.rules) and click **Publish**.
 
+> **Using a project that other apps also use?** Publishing rules **replaces all** of the project's rules. Copy only the `match /pixeldash_scores/{scoreId}` block into the existing rules, just above any catch-all `match /{document=**}` rule. Also add it to that app's own `firestore.rules` file, so its next deploy keeps the leaderboard.
+
 The rules work like this:
 
 - Anyone can read the leaderboard.
@@ -141,7 +147,7 @@ Firestore creates the single-field index that the `orderBy('score', 'desc')` que
 
 ### What gets stored
 
-Collection `scores`, one document per finished run:
+Collection `pixeldash_scores`, one document per finished run:
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -214,7 +220,7 @@ The characters `row()` understands:
 | `o` | coin |
 | `*` | crystal (decoration) |
 
-**Physics budget for level design:** the player can jump about 3 tiles up and about 5 tiles across at walking speed.
+**Physics budget for level design:** a walking jump rises about 4.6 tiles (enough to stand on a brick row 4 tiles above the ground) and reaches about 6 tiles across.
 
 ### Enemies and hazards
 
