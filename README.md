@@ -79,6 +79,7 @@ js/game.js                    Game loop (fixed 60 Hz step), input, physics, coll
 js/levels.js                  Tile set, 5 world themes, level layouts (builder DSL), enemy pixel art, enemy AI and boss AI
 js/audio.js                   Web Audio synthesizer: sound effects, jingles, step-sequencer chiptunes
 js/firebase.js                Google Sign-In, Firestore high scores, local fallback and retry queue
+js/firebase-config.example.js Template for the gitignored js/firebase-config.js (Firebase web config)
 firestore.rules               Security rules for the `pixeldash_scores` collection
 .github/workflows/deploy.yml  GitHub Pages deployment on every push to `main`
 ```
@@ -99,24 +100,18 @@ The game works without Firebase: scores are saved to `localStorage` and the lead
 2. On the project overview, click the **Web** icon (`</>`) to register a web app. You don't need Firebase Hosting.
 3. Copy the `firebaseConfig` object that Firebase shows you.
 
-### 2. Paste the config
+### 2. Add the config (kept out of git)
 
-Open `js/firebase.js` and replace the placeholders:
+The config is **not committed**. `js/firebase-config.js` is gitignored, and `js/firebase.js` only contains placeholders.
 
-```js
-const FIREBASE_CONFIG = {
-  apiKey: 'AIza...',
-  authDomain: 'your-project.firebaseapp.com',
-  projectId: 'your-project',
-  storageBucket: 'your-project.appspot.com',
-  messagingSenderId: '1234567890',
-  appId: '1:1234567890:web:abc123',
-};
-```
+- **For the live site:** add a repository secret named `FIREBASE_CONFIG` (Settings → Secrets and variables → Actions) whose value is the config as JSON, for example `{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}`. The deploy workflow writes it to `js/firebase-config.js` at build time. *This repo already has the secret set.*
+- **For local testing:** copy `js/firebase-config.example.js` to `js/firebase-config.js` and fill in your values.
 
-> A Firebase web config is **not a secret**. It ends up in every visitor's browser. Your data is protected by the security rules and the authorized domains list below.
+> A Firebase web API key can never be fully hidden. Browsers need it, so it's always readable on the live site. Protect it by **restricting the key** in Google Cloud console → APIs & Services → Credentials:
+> - **Website restrictions:** `https://<you>.github.io/*` and `https://<project-id>.firebaseapp.com/*`. The second one is where the Google sign-in popup runs.
+> - **API restrictions:** only *Identity Toolkit API*, *Token Service API* and *Cloud Firestore API*.
 >
-> **If you'd rather not commit it:** leave the placeholders in place. Then add a repository secret named `FIREBASE_CONFIG` (Settings → Secrets and variables → Actions) that contains the config as JSON, for example `{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}`. The deploy workflow injects it at build time.
+> The live game uses a dedicated key restricted exactly this way.
 
 ### 3. Enable Google Sign-In
 
@@ -246,7 +241,8 @@ Open the browser console:
 
 | Problem | Fix |
 |---------|-----|
-| "Firebase is not configured yet" | Paste your config into `js/firebase.js`, or set the `FIREBASE_CONFIG` secret |
+| "Firebase is not configured yet" | Set the `FIREBASE_CONFIG` secret (live site) or create `js/firebase-config.js` (local) |
+| `API_KEY_HTTP_REFERRER_BLOCKED` | Add the site's address to the key's website restrictions in Google Cloud console |
 | `auth/unauthorized-domain` | Add the domain under Authentication → Settings → Authorized domains |
 | `auth/operation-not-allowed` | Enable the Google provider under Authentication → Sign-in method |
 | Leaderboard shows LOCAL even after setup | Check the console. Usually the Firestore database hasn't been created yet or the rules haven't been published |

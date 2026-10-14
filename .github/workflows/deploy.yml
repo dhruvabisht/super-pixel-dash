@@ -34,9 +34,9 @@ jobs:
           cp -r index.html style.css js _site/
           touch _site/.nojekyll
 
-      # Optional: store your Firebase web config as a JSON repository secret named
-      # FIREBASE_CONFIG instead of committing it to js/firebase.js.
-      - name: Inject Firebase config from repository secret (optional)
+      # The Firebase web config is not committed (js/firebase-config.js is gitignored).
+      # It is stored as the FIREBASE_CONFIG repository secret (JSON) and written out here.
+      - name: Generate js/firebase-config.js from the FIREBASE_CONFIG secret
         env:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         run: |
@@ -45,14 +45,16 @@ jobs:
               let s = "";
               process.stdin.on("data", (d) => (s += d)).on("end", () => {
                 const cfg = JSON.parse(s);
+                for (const k of ["apiKey", "authDomain", "projectId", "appId"]) {
+                  if (!cfg[k]) { console.error("FIREBASE_CONFIG is missing " + k); process.exit(1); }
+                }
                 process.stdout.write("window.SPD_FIREBASE_CONFIG = " + JSON.stringify(cfg) + ";\n");
               });
-            ' > _site/js/firebase.tmp.js
-            cat _site/js/firebase.js >> _site/js/firebase.tmp.js
-            mv _site/js/firebase.tmp.js _site/js/firebase.js
-            echo "Injected Firebase config from the FIREBASE_CONFIG secret."
+            ' > _site/js/firebase-config.js
+            echo "Wrote js/firebase-config.js from the FIREBASE_CONFIG secret."
           else
-            echo "No FIREBASE_CONFIG secret set; using the config inside js/firebase.js."
+            echo "// No FIREBASE_CONFIG secret set: the game runs with local scores only." > _site/js/firebase-config.js
+            echo "No FIREBASE_CONFIG secret set; deploying without Firebase."
           fi
 
       - name: Configure Pages

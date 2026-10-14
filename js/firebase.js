@@ -15,16 +15,17 @@
   //    (Alternatively define window.SPD_FIREBASE_CONFIG in a
   //    script loaded before this file.)
   // -------------------------------------------------------
-  // Web app "Super Pixel Dash" inside the shared "MP3 Player IOS" project.
-  // This config is public by design; access is controlled by Firestore rules
-  // and the Authentication → Authorized domains list.
+  // Placeholders only. The real config is NOT committed: it lives in the
+  // gitignored js/firebase-config.js (locally) or is generated from the
+  // FIREBASE_CONFIG GitHub Actions secret at deploy time, and is exposed to
+  // this file as window.SPD_FIREBASE_CONFIG.
   const FIREBASE_CONFIG = {
-    apiKey: 'AIzaSyABjwnAcTrhshrZtLqNx1QSPW11DJUDgIk',
-    authDomain: 'mp3-player-ios.firebaseapp.com',
-    projectId: 'mp3-player-ios',
-    storageBucket: 'mp3-player-ios.firebasestorage.app',
-    messagingSenderId: '1071216529266',
-    appId: '1:1071216529266:web:e3518abd43e4c424a957eb',
+    apiKey: 'YOUR_API_KEY',
+    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
+    projectId: 'YOUR_PROJECT_ID',
+    storageBucket: 'YOUR_PROJECT_ID.appspot.com',
+    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+    appId: 'YOUR_APP_ID',
   };
 
   const SDK_VERSION = '10.12.2';
